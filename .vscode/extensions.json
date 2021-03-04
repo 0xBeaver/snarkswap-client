@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens",
+    "streetsidesoftware.code-spell-checker",
+    "iden3.circom",
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "juanblanco.solidity",
+  ]
+}
