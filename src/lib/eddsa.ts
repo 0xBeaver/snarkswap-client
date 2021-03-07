@@ -25,12 +25,12 @@ export const signEdDSA = async (
     `src/artifacts/eddsa.wasm`,
     'src/artifacts/eddsa.zkey'
   );
-  const verifiResult = await groth16.verify(
+  const verifyResult = await groth16.verify(
     eddsaVK,
     result.publicSignals,
     result.proof
   );
-  assert(verifiResult, 'generated false proof');
+  assert(verifyResult, 'generated false proof');
   return result.proof;
 };
 

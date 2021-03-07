@@ -13,10 +13,10 @@ test('poseidon', (t) => {
 });
 
 test('eddsa', (t) => {
-  const passcode = 'password';
-  const pubKey = circomlib.eddsa.prv2pub(passcode);
+  const password = 'password';
+  const pubKey = circomlib.eddsa.prv2pub(password);
   const message = 1234n;
-  const signature = circomlib.eddsa.signPoseidon(passcode, message);
+  const signature = circomlib.eddsa.signPoseidon(password, message);
   t.is(circomlib.eddsa.verifyPoseidon(message, signature, pubKey), true);
   t.is(circomlib.eddsa.verifyPoseidon(message + 1n, signature, pubKey), false);
 });

@@ -256,12 +256,12 @@ export const hideSwap = async (
     `src/artifacts/swap.wasm`,
     'src/artifacts/swap.zkey'
   );
-  const verifiResult = await groth16.verify(
+  const verifyResult = await groth16.verify(
     swapVK,
     result.publicSignals,
     result.proof
   );
-  assert(verifiResult, 'generated false proof');
+  assert(verifyResult, 'generated false proof');
   return {
     commitment,
     hReserve0,
