@@ -1,9 +1,9 @@
 import { eddsa } from 'circomlib';
+import { BigNumber, Bytes, Signer } from 'ethers';
 import { SnarkjsProof } from 'snarkjs';
-import { hexToBytes, keccak256, toBN, toHex } from 'web3-utils';
-import { Signer, Bytes } from 'ethers';
+import { hexToBytes, keccak256, toHex } from 'web3-utils';
 
-export const PRIME_Q: bigint = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
+export const PRIME_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
 export type Proof = {
   readonly a: readonly string[] | readonly bigint[];
@@ -39,11 +39,12 @@ export const proofToSnarkjsProof = (proof: Proof): SnarkjsProof => {
   };
 };
 
-export const genEdDSAPrivKey = (
+export const genEdDSAPrivKey = async (
   message: string | Bytes,
   signer: Signer
-): bigint => {
-  const ecdsa = signer.signMessage(message);
-  const privKey = toBN(keccak256(ecdsa)).mod(PRIME_Q);
-  return privKey;
+): Promise<bigint> => {
+  const ecdsa = await signer.signMessage(message);
+  console.log('ecdsa', ecdsa);
+  const privKey = BigNumber.from(keccak256(ecdsa)).mod(BigNumber.from(PRIME_Q));
+  return BigInt(privKey);
 };
