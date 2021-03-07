@@ -9,7 +9,7 @@ export type Note = {
   readonly salt: bigint;
 };
 
-export const hash = (note: Note): bigint => {
+export const getNoteHash = (note: Note): bigint => {
   assert(note.address.toString(2).length <= 160, 'invalid address');
   assert(note.amount.toString(2).length <= 239, 'invalid amount');
   assert(note.pubKey[0].toString(2).length <= 254, 'invalid pubkey');

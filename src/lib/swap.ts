@@ -15,7 +15,7 @@ import {
 
 import swapVK from '../snarkfiles/swap.vk.json';
 
-import { Note, hash as noteHash } from './note';
+import { getNoteHash, Note } from './note';
 import { hideReserve } from './pow';
 import {
   privToBuffer,
@@ -152,10 +152,10 @@ export const hideSwap = async (
   const rand = Math.random();
   const outputA = rand < 0.5 ? output0 : output1;
   const outputB = rand < 0.5 ? output1 : output0;
-  const sourceAHash = noteHash(sourceA);
-  const sourceBHash = noteHash(sourceB);
-  const outputAHash = noteHash(outputA);
-  const outputBHash = noteHash(outputB);
+  const sourceAHash = getNoteHash(sourceA);
+  const sourceBHash = getNoteHash(sourceB);
+  const outputAHash = getNoteHash(outputA);
+  const outputBHash = getNoteHash(outputB);
 
   const secret = Buffer.concat([
     Buffer.from(hexToBytes(padLeft(toHex(outputA.amount.toString(10)), 64))),
