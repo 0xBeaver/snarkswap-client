@@ -6,9 +6,9 @@ import { hexToBytes, keccak256, toHex } from 'web3-utils';
 export const PRIME_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
 export type Proof = {
-  readonly a: readonly BigNumberish[];
-  readonly b: readonly (readonly BigNumberish[])[];
-  readonly c: readonly BigNumberish[];
+  readonly a: readonly BigNumber[];
+  readonly b: readonly (readonly BigNumber[])[];
+  readonly c: readonly BigNumber[];
 };
 
 export const privToBuffer = (privKey: BigNumberish): Buffer => {
@@ -48,7 +48,7 @@ export const proofToSnarkjsProof = (proof: Proof): SnarkjsProof => {
 export const genEdDSAPrivKey = async (
   message: string | Bytes,
   signer: Signer
-): Promise<BigNumberish> => {
+): Promise<BigNumber> => {
   const ecdsa = await signer.signMessage(message);
   const privKey = BigNumber.from(keccak256(ecdsa)).mod(BigNumber.from(PRIME_Q));
   return privKey;
