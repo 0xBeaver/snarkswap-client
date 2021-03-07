@@ -1,5 +1,6 @@
 /* eslint-disable functional/no-let */
 import assert from 'assert';
+import path from 'path';
 
 import { encrypt } from 'chacha20';
 import circomlib from 'circomlib';
@@ -12,7 +13,7 @@ import {
   toHex,
 } from 'web3-utils';
 
-import swapVK from '../artifacts/swap.vk.json';
+import swapVK from '../snarkfiles/swap.vk.json';
 
 import { Note, hash as noteHash } from './note';
 import { hideReserve } from './pow';
@@ -253,8 +254,8 @@ export const hideSwap = async (
       sigR8: signature.R8,
       sigS: signature.S,
     },
-    `src/artifacts/swap.wasm`,
-    'src/artifacts/swap.zkey'
+    `${path.join(__dirname, '../snarkfiles/swap.wasm')}`,
+    `${path.join(__dirname, '../snarkfiles/swap.zkey')}`
   );
   const verifyResult = await groth16.verify(
     swapVK,

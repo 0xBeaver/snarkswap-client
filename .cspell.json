@@ -25,6 +25,7 @@
     "sandboxed",
     "snarkswap",
     "snarkjs",
+    "snarkfiles",
     "transpiled",
     "typedoc",
     "untracked",

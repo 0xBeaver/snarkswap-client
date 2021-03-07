@@ -11,7 +11,9 @@
   "scripts": {
     "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
+    "postbuild:main": "copyfiles -f src/snarkfiles/*.wasm src/snarkfiles/*.zkey build/main/snarkfiles",
     "build:module": "tsc -p tsconfig.module.json",
+    "postbuild:module": "copyfiles -f src/snarkfiles/*.wasm src/snarkfiles/*.zkey build/module/snarkfiles",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:lint": "eslint src --ext .ts --fix",
@@ -55,6 +57,7 @@
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
     "codecov": "^3.5.0",
+    "copyfiles": "^2.4.1",
     "cspell": "^4.1.0",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.8.0",

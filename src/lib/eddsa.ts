@@ -1,9 +1,10 @@
-import { assert } from 'console';
+import assert from 'assert';
+import path from 'path';
 
 import { eddsa } from 'circomlib';
 import { groth16, Proof } from 'snarkjs';
 
-import eddsaVK from '../artifacts/eddsa.vk.json';
+import eddsaVK from '../snarkfiles/eddsa.vk.json';
 
 import { privToBuffer, privToPubKey } from './utils';
 
@@ -22,8 +23,8 @@ export const signEdDSA = async (
       R8y: signature.R8[1],
       s: signature.S,
     },
-    `src/artifacts/eddsa.wasm`,
-    'src/artifacts/eddsa.zkey'
+    `${path.join(__dirname, '../snarkfiles/eddsa.wasm')}`,
+    `${path.join(__dirname, '../snarkfiles/eddsa.zkey')}`
   );
   const verifyResult = await groth16.verify(
     eddsaVK,
