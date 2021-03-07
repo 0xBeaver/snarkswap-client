@@ -19,11 +19,9 @@
  */
 
 declare module 'snarkjs' {
-  type Proof = {
+  type SnarkjsProof = {
     readonly pi_a: readonly string[] | readonly bigint[];
-    readonly pi_b:
-      | readonly (readonly string[])[]
-      | readonly (readonly bigint[])[];
+    readonly pi_b: readonly (readonly (string | bigint)[])[];
     readonly pi_c: readonly string[] | readonly bigint[];
     readonly protocol: string;
   };
@@ -31,7 +29,7 @@ declare module 'snarkjs' {
   type PublicSignals = readonly string[] | readonly bigint[];
 
   type SNARK = {
-    readonly proof: Proof;
+    readonly proof: SnarkjsProof;
     readonly publicSignals: PublicSignals;
   };
 
@@ -65,9 +63,9 @@ declare module 'snarkjs' {
     readonly verify: (
       vkVerifier: VK,
       publicSignals: PublicSignals,
-      proof: Proof,
+      proof: SnarkjsProof,
       logger?: unknown
     ) => Promise<boolean>;
   };
-  export { Proof, VK, groth16 };
+  export { SnarkjsProof, VK, groth16 };
 }

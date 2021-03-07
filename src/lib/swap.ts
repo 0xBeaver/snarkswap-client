@@ -4,7 +4,7 @@ import path from 'path';
 
 import { encrypt } from 'chacha20';
 import circomlib from 'circomlib';
-import { groth16, Proof } from 'snarkjs';
+import { groth16 } from 'snarkjs';
 import {
   hexToBytes,
   hexToNumberString,
@@ -17,7 +17,12 @@ import swapVK from '../snarkfiles/swap.vk.json';
 
 import { Note, hash as noteHash } from './note';
 import { hideReserve } from './pow';
-import { privToBuffer, privToPubKey } from './utils';
+import {
+  privToBuffer,
+  privToPubKey,
+  Proof,
+  snarkjsProofToContractArg,
+} from './utils';
 
 export enum SwapType {
   Token0In = '0In',
@@ -270,6 +275,6 @@ export const hideSwap = async (
     mask,
     salt,
     cipher,
-    proof: result.proof,
+    proof: snarkjsProofToContractArg(result.proof),
   };
 };

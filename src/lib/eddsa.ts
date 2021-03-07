@@ -2,11 +2,17 @@ import assert from 'assert';
 import path from 'path';
 
 import { eddsa } from 'circomlib';
-import { groth16, Proof } from 'snarkjs';
+import { groth16 } from 'snarkjs';
 
 import eddsaVK from '../snarkfiles/eddsa.vk.json';
 
-import { privToBuffer, privToPubKey } from './utils';
+import {
+  privToBuffer,
+  privToPubKey,
+  Proof,
+  proofToSnarkjsProof,
+  snarkjsProofToContractArg,
+} from './utils';
 
 export const signEdDSA = async (
   message: bigint,
@@ -32,7 +38,8 @@ export const signEdDSA = async (
     result.proof
   );
   assert(verifyResult, 'generated false proof');
-  return result.proof;
+  const proof = snarkjsProofToContractArg(result.proof);
+  return proof;
 };
 
 export const verifyEdDSA = async (
@@ -41,6 +48,10 @@ export const verifyEdDSA = async (
   proof: Proof
 ): Promise<boolean> => {
   const publicSignals = [message, pubKey[0], pubKey[1]];
-  const result = await groth16.verify(eddsaVK, publicSignals, proof);
+  const result = await groth16.verify(
+    eddsaVK,
+    publicSignals,
+    proofToSnarkjsProof(proof)
+  );
   return result;
 };
