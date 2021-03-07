@@ -1,6 +1,9 @@
 import { eddsa } from 'circomlib';
 import { SnarkjsProof } from 'snarkjs';
-import { hexToBytes, toHex } from 'web3-utils';
+import { hexToBytes, keccak256, toBN, toHex } from 'web3-utils';
+import { Signer, Bytes } from 'ethers';
+
+export const PRIME_Q: bigint = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
 export type Proof = {
   readonly a: readonly string[] | readonly bigint[];
@@ -34,4 +37,13 @@ export const proofToSnarkjsProof = (proof: Proof): SnarkjsProof => {
     pi_c: proof.c,
     protocol: 'groth16',
   };
+};
+
+export const genEdDSAPrivKey = (
+  message: string | Bytes,
+  signer: Signer
+): bigint => {
+  const ecdsa = signer.signMessage(message);
+  const privKey = toBN(keccak256(ecdsa)).mod(PRIME_Q);
+  return privKey;
 };
