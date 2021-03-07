@@ -1,7 +1,7 @@
 import { eddsa } from 'circomlib';
 import { BigNumber, BigNumberish, Bytes, Signer } from 'ethers';
+import { arrayify, keccak256 } from 'ethers/lib/utils';
 import { SnarkjsProof } from 'snarkjs';
-import { hexToBytes, keccak256, toHex } from 'web3-utils';
 
 export const PRIME_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
@@ -12,7 +12,7 @@ export type Proof = {
 };
 
 export const privToBuffer = (privKey: BigNumberish): Buffer => {
-  const buff = Buffer.from(hexToBytes(toHex(privKey.toString(10))));
+  const buff = Buffer.from(arrayify(BigNumber.from(privKey).toHexString()));
   return buff;
 };
 
