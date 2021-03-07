@@ -22,6 +22,7 @@
         "keccak",
         "libauth",
         "mkdir",
+        "Numberish",
         "prettierignore",
         "sandboxed",
         "snarkfiles",
