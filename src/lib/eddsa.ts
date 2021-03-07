@@ -2,6 +2,7 @@ import assert from 'assert';
 import path from 'path';
 
 import { eddsa } from 'circomlib';
+import { BigNumber, BigNumberish } from 'ethers';
 import { groth16 } from 'snarkjs';
 
 import eddsaVK from '../snarkfiles/eddsa.vk.json';
@@ -15,16 +16,19 @@ import {
 } from './utils';
 
 export const signEdDSA = async (
-  message: bigint,
-  privKey: bigint
+  message: BigNumberish,
+  privKey: BigNumberish
 ): Promise<Proof> => {
   const privKeyBuff = privToBuffer(privKey);
   const pubKey = privToPubKey(privKey);
-  const signature = eddsa.signPoseidon(privKeyBuff, message);
+  const signature = eddsa.signPoseidon(
+    privKeyBuff,
+    BigInt(BigNumber.from(message))
+  );
   const result = await groth16.fullProve(
     {
-      note: message,
-      pubKey,
+      note: BigInt(BigNumber.from(message)),
+      pubKey: pubKey.map((bn) => BigInt(BigNumber.from(bn))),
       R8x: signature.R8[0],
       R8y: signature.R8[1],
       s: signature.S,
@@ -43,11 +47,14 @@ export const signEdDSA = async (
 };
 
 export const verifyEdDSA = async (
-  message: bigint,
-  pubKey: readonly bigint[],
+  message: BigNumberish,
+  pubKey: readonly BigNumberish[],
   proof: Proof
 ): Promise<boolean> => {
-  const publicSignals = [message, pubKey[0], pubKey[1]];
+  const publicSignals = [message, pubKey[0], pubKey[1]].map((bn) =>
+    BigInt(BigNumber.from(bn))
+  );
+
   const result = await groth16.verify(
     eddsaVK,
     publicSignals,

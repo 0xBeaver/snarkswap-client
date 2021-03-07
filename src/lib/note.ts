@@ -1,26 +1,29 @@
 import assert from 'assert';
 
 import circomlib from 'circomlib';
+import { BigNumber, BigNumberish } from 'ethers';
 
 export type Note = {
-  readonly address: bigint;
-  readonly amount: bigint;
-  readonly pubKey: readonly bigint[];
-  readonly salt: bigint;
+  readonly address: BigNumberish;
+  readonly amount: BigNumberish;
+  readonly pubKey: readonly BigNumberish[];
+  readonly salt: BigNumberish;
 };
 
-export const getNoteHash = (note: Note): bigint => {
-  assert(note.address.toString(2).length <= 160, 'invalid address');
-  assert(note.amount.toString(2).length <= 239, 'invalid amount');
-  assert(note.pubKey[0].toString(2).length <= 254, 'invalid pubkey');
-  assert(note.pubKey[1].toString(2).length <= 254, 'invalid pubkey');
-  assert(note.salt.toString(2).length <= 128, 'no need for too large salt');
+const One = BigNumber.from(1);
+
+export const getNoteHash = (note: Note): BigNumber => {
+  assert(One.shl(160).gt(note.address), 'invalid address');
+  assert(One.shl(239).gt(note.amount), 'invalid amount');
+  assert(One.shl(254).gt(note.pubKey[0]), 'invalid pubkey');
+  assert(One.shl(254).gt(note.pubKey[1]), 'invalid pubkey');
+  assert(One.shl(128).gt(note.salt), 'no need for too large salt ');
   const noteHash = circomlib.poseidon([
-    note.address,
-    note.amount,
-    note.pubKey[0],
-    note.pubKey[1],
-    note.salt,
+    BigInt(BigNumber.from(note.address)),
+    BigInt(BigNumber.from(note.amount)),
+    BigInt(BigNumber.from(note.pubKey[0])),
+    BigInt(BigNumber.from(note.pubKey[1])),
+    BigInt(BigNumber.from(note.salt)),
   ]);
-  return noteHash;
+  return BigNumber.from(noteHash);
 };

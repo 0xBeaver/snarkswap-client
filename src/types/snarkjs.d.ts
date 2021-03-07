@@ -20,13 +20,13 @@
 
 declare module 'snarkjs' {
   type SnarkjsProof = {
-    readonly pi_a: readonly string[] | readonly bigint[];
+    readonly pi_a: readonly (string | bigint)[];
     readonly pi_b: readonly (readonly (string | bigint)[])[];
-    readonly pi_c: readonly string[] | readonly bigint[];
+    readonly pi_c: readonly (string | bigint)[];
     readonly protocol: string;
   };
 
-  type PublicSignals = readonly string[] | readonly bigint[];
+  type PublicSignals = readonly (string | bigint)[];
 
   type SNARK = {
     readonly proof: SnarkjsProof;

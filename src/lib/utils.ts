@@ -1,40 +1,46 @@
 import { eddsa } from 'circomlib';
-import { BigNumber, Bytes, Signer } from 'ethers';
+import { BigNumber, BigNumberish, Bytes, Signer } from 'ethers';
 import { SnarkjsProof } from 'snarkjs';
 import { hexToBytes, keccak256, toHex } from 'web3-utils';
 
 export const PRIME_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
 export type Proof = {
-  readonly a: readonly string[] | readonly bigint[];
-  readonly b: readonly (readonly (string | bigint)[])[];
-  readonly c: readonly string[] | readonly bigint[];
+  readonly a: readonly BigNumberish[];
+  readonly b: readonly (readonly BigNumberish[])[];
+  readonly c: readonly BigNumberish[];
 };
 
-export const privToBuffer = (privKey: bigint): Buffer => {
+export const privToBuffer = (privKey: BigNumberish): Buffer => {
   const buff = Buffer.from(hexToBytes(toHex(privKey.toString(10))));
   return buff;
 };
 
-export const privToPubKey = (privKey: bigint): readonly bigint[] => {
+export const privToPubKey = (privKey: BigNumberish): readonly BigNumber[] => {
   const privKeyBuff = privToBuffer(privKey);
   const pubKey = eddsa.prv2pub(privKeyBuff);
-  return pubKey;
+  return pubKey.map((n) => BigNumber.from(n));
 };
 
 export const snarkjsProofToContractArg = (proof: SnarkjsProof): Proof => {
   return {
-    a: proof.pi_a,
-    b: [[...proof.pi_b[0]].reverse(), [...proof.pi_b[1]].reverse()],
-    c: proof.pi_c,
+    a: proof.pi_a.map((n) => BigNumber.from(n)),
+    b: [
+      [...proof.pi_b[0]].reverse().map((n) => BigNumber.from(n)),
+      [...proof.pi_b[1]].reverse().map((n) => BigNumber.from(n)),
+    ],
+    c: proof.pi_c.map((n) => BigNumber.from(n)),
   };
 };
 
 export const proofToSnarkjsProof = (proof: Proof): SnarkjsProof => {
   return {
-    pi_a: proof.a,
-    pi_b: [[...proof.b[0]].reverse(), [...proof.b[1]].reverse()],
-    pi_c: proof.c,
+    pi_a: proof.a.map((bn) => BigInt(bn)),
+    pi_b: [
+      [...proof.b[0]].reverse().map((bn) => BigInt(bn)),
+      [...proof.b[1]].reverse().map((bn) => BigInt(bn)),
+    ],
+    pi_c: proof.c.map((bn) => BigInt(bn)),
     protocol: 'groth16',
   };
 };
@@ -42,9 +48,47 @@ export const proofToSnarkjsProof = (proof: Proof): SnarkjsProof => {
 export const genEdDSAPrivKey = async (
   message: string | Bytes,
   signer: Signer
-): Promise<bigint> => {
+): Promise<BigNumberish> => {
   const ecdsa = await signer.signMessage(message);
-  console.log('ecdsa', ecdsa);
   const privKey = BigNumber.from(keccak256(ecdsa)).mod(BigNumber.from(PRIME_Q));
-  return BigInt(privKey);
+  return privKey;
+};
+
+export type FeeRatio = {
+  readonly numerator: number;
+  readonly denominator: number;
+};
+
+export const getAmountOut = (
+  amountIn: BigNumberish,
+  reserveIn: BigNumberish,
+  reserveOut: BigNumberish,
+  feeRatio?: FeeRatio
+): BigNumber => {
+  const _feeNumerator = feeRatio?.numerator || 3;
+  const _feeDeonminator = feeRatio?.denominator || 1000;
+
+  const _amountIn = BigNumber.from(amountIn);
+  const _reserveIn = BigNumber.from(reserveIn);
+  const amountInWithFee = _amountIn.mul(_feeDeonminator - _feeNumerator);
+  const numerator = amountInWithFee.mul(reserveOut);
+  const denominator = _reserveIn.mul(_feeDeonminator).add(amountInWithFee);
+  return numerator.div(denominator);
+};
+
+export const getAmountIn = (
+  amountOut: BigNumberish,
+  reserveIn: BigNumberish,
+  reserveOut: BigNumberish,
+  feeRatio?: FeeRatio
+): BigNumber => {
+  const _feeNumerator = feeRatio?.numerator || 3;
+  const _feeDeonminator = feeRatio?.denominator || 1000;
+  const _amountOut = BigNumber.from(amountOut);
+  const _reserveOut = BigNumber.from(reserveOut);
+  const numerator = _amountOut.mul(reserveIn).mul(_feeDeonminator);
+  const denominator = _reserveOut
+    .sub(amountOut)
+    .mul(_feeDeonminator - _feeNumerator);
+  return numerator.div(denominator.add(1));
 };
