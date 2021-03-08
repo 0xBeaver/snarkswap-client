@@ -28,7 +28,7 @@ test('hide difficulty test', async (t) => {
 });
 
 test('hide & solve - low difficulty', async (t) => {
-  const { commitment, hReserve0, hReserve1, mask, salt } = hideReserve(
+  const { darkness: commitment, hReserve0, hReserve1, mask, salt } = hideReserve(
     reserve0,
     reserve1,
     8
@@ -42,7 +42,7 @@ test('hide & solve - low difficulty', async (t) => {
 });
 
 test.skip('hide & solve - high difficulty', async (t) => {
-  const { commitment, hReserve0, hReserve1, mask, salt } = hideReserve(
+  const { darkness: commitment, hReserve0, hReserve1, mask, salt } = hideReserve(
     reserve0,
     reserve1,
     16

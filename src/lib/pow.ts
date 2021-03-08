@@ -3,8 +3,12 @@
 /* eslint-disable functional/no-let */
 import circomlib from 'circomlib';
 import { BigNumber, BigNumberish } from 'ethers';
-import { hexZeroPad } from 'ethers/lib/utils';
-import { encodePacked, keccak256, randomHex, toBN } from 'web3-utils';
+import {
+  hexZeroPad,
+  keccak256,
+  randomBytes,
+  solidityPack,
+} from 'ethers/lib/utils';
 
 const RIGHT_112_BITS = (1n << 112n) - 1n;
 
@@ -44,8 +48,6 @@ export const solve = async (
   const _hReserve1 = BigInt(BigNumber.from(hReserve1));
   const _mask = BigInt(BigNumber.from(mask));
   const _salt = BigInt(BigNumber.from(salt));
-  const hReserve0Hex = hexZeroPad(BigNumber.from(hReserve0).toHexString(), 14);
-  const hReserve1Hex = hexZeroPad(BigNumber.from(hReserve1).toHexString(), 14);
   const maskHex = hexZeroPad(BigNumber.from(mask).toHexString(), 28);
   return new Promise((resolve) => {
     // concatenated
@@ -71,14 +73,12 @@ export const solve = async (
       const reserve1 = guessedReserve & RIGHT_112_BITS;
       hRatio = BigNumber.from(circomlib.poseidon([reserve0, reserve1, _salt]));
       const computedCommitment = keccak256(
-        encodePacked(
-          hexZeroPad(hRatio.toHexString(), 32),
-          hReserve0Hex,
-          hReserve1Hex,
-          maskHex
+        solidityPack(
+          ['uint256', 'uint112', 'uint112', 'uint224'],
+          [hRatio, hReserve0, hReserve1, maskHex]
         )
       );
-      if (toBN(commitment).eq(toBN(computedCommitment))) {
+      if (BigNumber.from(commitment).eq(computedCommitment)) {
         resolve({
           reserve0: BigNumber.from(reserve0),
           reserve1: BigNumber.from(reserve1),
@@ -95,7 +95,7 @@ export const hideReserve = (
   reserve1: BigNumberish,
   difficulty: number
 ): {
-  readonly commitment: string;
+  readonly darkness: string;
   readonly hReserve0: BigNumber;
   readonly hReserve1: BigNumber;
   readonly mask: BigNumber;
@@ -117,20 +117,18 @@ export const hideReserve = (
   }
   const hReserve0 = BigNumber.from(concatReserve >> 112n);
   const hReserve1 = BigNumber.from(concatReserve & RIGHT_112_BITS);
-  const salt = BigNumber.from(randomHex(16));
+  const salt = BigNumber.from(randomBytes(16));
   const hRatio = BigNumber.from(
     circomlib.poseidon([_reserve0, _reserve1, BigInt(salt)])
   );
-  const commitment = keccak256(
-    encodePacked(
-      hexZeroPad(hRatio.toHexString(), 32),
-      hexZeroPad(hReserve0.toHexString(), 14),
-      hexZeroPad(hReserve1.toHexString(), 14),
-      hexZeroPad(mask.toHexString(), 28)
+  const darkness = keccak256(
+    solidityPack(
+      ['uint256', 'uint112', 'uint112', 'uint224'],
+      [hRatio, hReserve0, hReserve1, mask]
     )
   );
   return {
-    commitment,
+    darkness,
     hReserve0,
     hReserve1,
     mask,

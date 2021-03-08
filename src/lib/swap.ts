@@ -7,10 +7,10 @@ import circomlib from 'circomlib';
 import { BigNumber, BigNumberish } from 'ethers';
 import {
   arrayify,
-  defaultAbiCoder,
   hexConcat,
   hexZeroPad,
   keccak256,
+  solidityPack,
 } from 'ethers/lib/utils';
 import { groth16 } from 'snarkjs';
 import { hexToNumberString, randomHex } from 'web3-utils';
@@ -165,7 +165,7 @@ export const hideSwap = async (
   const newReserve0 = _reserve0.add(amount0In).sub(amount0Out);
   const newReserve1 = _reserve1.add(amount1In).sub(amount1Out);
 
-  const { commitment, hReserve0, hReserve1, mask, salt, hRatio } = hideReserve(
+  const { darkness: commitment, hReserve0, hReserve1, mask, salt, hRatio } = hideReserve(
     newReserve0,
     newReserve1,
     difficulty
@@ -266,7 +266,7 @@ export const hideSwap = async (
   );
   assert(verifyResult, 'generated false proof');
   const darkness = keccak256(
-    defaultAbiCoder.encode(
+    solidityPack(
       ['uint256', 'uint112', 'uint112', 'uint224'],
       [hRatio, hReserve0, hReserve1, mask]
     )

@@ -3,7 +3,7 @@ import path from 'path';
 
 import { eddsa } from 'circomlib';
 import { BigNumber, BigNumberish } from 'ethers';
-import { defaultAbiCoder, keccak256 } from 'ethers/lib/utils';
+import { keccak256, solidityPack } from 'ethers/lib/utils';
 import { groth16 } from 'snarkjs';
 
 import eddsaVK from '../snarkfiles/eddsa.vk.json';
@@ -23,7 +23,7 @@ export const signWithdrawal = async (
   privKey: BigNumberish
 ): Promise<Proof> => {
   const msg = BigNumber.from(
-    keccak256(defaultAbiCoder.encode(['uint256', 'address'], [noteHash, to]))
+    keccak256(solidityPack(['uint256', 'address'], [noteHash, to]))
   ).mod(BigNumber.from(PRIME_Q));
   const proof = await signEdDSA(msg, privKey);
   return proof;
