@@ -48,6 +48,7 @@ export const hideSwap = async (
   readonly commitment: string;
   readonly hReserve0: BigNumber;
   readonly hReserve1: BigNumber;
+  readonly hRatio: BigNumber;
   readonly mask: BigNumber;
   readonly salt: BigNumber;
   readonly cipher: Buffer;
@@ -255,6 +256,7 @@ export const hideSwap = async (
     commitment,
     hReserve0,
     hReserve1,
+    hRatio,
     mask,
     salt,
     cipher,
