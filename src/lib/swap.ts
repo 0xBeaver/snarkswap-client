@@ -5,7 +5,13 @@ import path from 'path';
 import { encrypt } from 'chacha20';
 import circomlib from 'circomlib';
 import { BigNumber, BigNumberish } from 'ethers';
-import { arrayify, hexConcat, hexZeroPad } from 'ethers/lib/utils';
+import {
+  arrayify,
+  defaultAbiCoder,
+  hexConcat,
+  hexZeroPad,
+  keccak256,
+} from 'ethers/lib/utils';
 import { groth16 } from 'snarkjs';
 import { hexToNumberString, randomHex } from 'web3-utils';
 
@@ -53,7 +59,8 @@ export const hideSwap = async (
   readonly salt: BigNumber;
   readonly outputA: Note;
   readonly outputB: Note;
-  readonly cipher: Buffer;
+  readonly darkness: string;
+  readonly encryptedOutputs: Buffer;
   readonly proof: Proof;
 }> => {
   const pubKey = privToPubKey(privKey);
@@ -149,7 +156,11 @@ export const hideSwap = async (
       ])
     )
   );
-  const cipher = encrypt(privToBuffer(privKey), Buffer.from([]), secret);
+  const encryptedOutputs = encrypt(
+    privToBuffer(privKey),
+    Buffer.from([]),
+    secret
+  );
 
   const newReserve0 = _reserve0.add(amount0In).sub(amount0Out);
   const newReserve1 = _reserve1.add(amount1In).sub(amount1Out);
@@ -254,6 +265,12 @@ export const hideSwap = async (
     result.proof
   );
   assert(verifyResult, 'generated false proof');
+  const darkness = keccak256(
+    defaultAbiCoder.encode(
+      ['uint256', 'uint112', 'uint112', 'uint224'],
+      [hRatio, hReserve0, hReserve1, mask]
+    )
+  );
   return {
     commitment,
     hReserve0,
@@ -261,9 +278,10 @@ export const hideSwap = async (
     hRatio,
     mask,
     salt,
-    cipher,
+    encryptedOutputs,
     outputA,
     outputB,
+    darkness,
     proof: snarkjsProofToContractArg(result.proof),
   };
 };
