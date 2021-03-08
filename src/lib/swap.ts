@@ -51,6 +51,8 @@ export const hideSwap = async (
   readonly hRatio: BigNumber;
   readonly mask: BigNumber;
   readonly salt: BigNumber;
+  readonly outputA: Note;
+  readonly outputB: Note;
   readonly cipher: Buffer;
   readonly proof: Proof;
 }> => {
@@ -260,6 +262,8 @@ export const hideSwap = async (
     mask,
     salt,
     cipher,
+    outputA,
+    outputB,
     proof: snarkjsProofToContractArg(result.proof),
   };
 };
