@@ -12,29 +12,8 @@ import {
 
 const RIGHT_112_BITS = (1n << 112n) - 1n;
 
-/**
- * Multiplies a value by 2. (Also a full example of TypeDoc's functionality.)
- *
- * ### Example (es module)
- * ```js
- * import { double } from 'typescript-starter'
- * console.log(double(4))
- * // => 8
- * ```
- *
- * ### Example (commonjs)
- * ```js
- * var double = require('typescript-starter').double;
- * console.log(double(4))
- * // => 8
- * ```
- *
- * @param value - Comment describing the `value` parameter.
- * @returns Comment describing the return type.
- * @anotherNote Some other value.
- */
 export const solve = async (
-  commitment: string,
+  darkness: string,
   hReserve0: BigNumberish,
   hReserve1: BigNumberish,
   mask: BigNumberish,
@@ -72,13 +51,13 @@ export const solve = async (
       const reserve0 = guessedReserve >> 112n;
       const reserve1 = guessedReserve & RIGHT_112_BITS;
       hRatio = BigNumber.from(circomlib.poseidon([reserve0, reserve1, _salt]));
-      const computedCommitment = keccak256(
+      const computedDarkness = keccak256(
         solidityPack(
           ['uint256', 'uint112', 'uint112', 'uint224'],
           [hRatio, hReserve0, hReserve1, maskHex]
         )
       );
-      if (BigNumber.from(commitment).eq(computedCommitment)) {
+      if (BigNumber.from(darkness).eq(computedDarkness)) {
         resolve({
           reserve0: BigNumber.from(reserve0),
           reserve1: BigNumber.from(reserve1),
