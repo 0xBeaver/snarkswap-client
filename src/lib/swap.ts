@@ -161,15 +161,17 @@ export const hideSwap = async (
     Buffer.from([]),
     secret
   );
-
   const newReserve0 = _reserve0.add(amount0In).sub(amount0Out);
   const newReserve1 = _reserve1.add(amount1In).sub(amount1Out);
 
-  const { darkness: commitment, hReserve0, hReserve1, mask, salt, hRatio } = hideReserve(
-    newReserve0,
-    newReserve1,
-    difficulty
-  );
+  const {
+    darkness: commitment,
+    hReserve0,
+    hReserve1,
+    mask,
+    salt,
+    hRatio,
+  } = hideReserve(newReserve0, newReserve1, difficulty);
   const txHash = circomlib.poseidon([
     BigInt(sourceAHash),
     BigInt(sourceBHash),

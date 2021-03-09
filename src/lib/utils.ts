@@ -1,7 +1,12 @@
+import assert from 'assert';
+
+import { decrypt } from 'chacha20';
 import { eddsa } from 'circomlib';
 import { BigNumber, BigNumberish, Bytes, Signer } from 'ethers';
-import { arrayify, keccak256 } from 'ethers/lib/utils';
+import { arrayify, BytesLike, keccak256 } from 'ethers/lib/utils';
 import { SnarkjsProof } from 'snarkjs';
+
+import { getNoteHash, Note } from './note';
 
 export const PRIME_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583n;
 
@@ -91,4 +96,57 @@ export const getAmountIn = (
     .sub(amountOut)
     .mul(_feeDeonminator - _feeNumerator);
   return numerator.div(denominator.add(1));
+};
+
+export const decryptTransaction = (
+  privKey: BigNumberish,
+  outputA: BigNumberish,
+  outputB: BigNumberish,
+  address0: string,
+  address1: string,
+  secret: BytesLike
+) => {
+  const privBuff = privToBuffer(privKey);
+  const pubKey = privToPubKey(privKey);
+  const decrypted = decrypt(
+    privBuff,
+    Buffer.from([]),
+    Buffer.from(arrayify(secret))
+  );
+  const amountA = BigNumber.from(decrypted.slice(0, 32));
+  const saltA = BigNumber.from(decrypted.slice(32, 48));
+  const amountB = BigNumber.from(decrypted.slice(48, 80));
+  const saltB = BigNumber.from(decrypted.slice(80, 96));
+  const output0a: Note = {
+    address: BigNumber.from(address0),
+    amount: amountA,
+    salt: saltA,
+    pubKey,
+  };
+  const output0b: Note = {
+    address: BigNumber.from(address0),
+    amount: amountB,
+    salt: saltB,
+    pubKey,
+  };
+  const output1a: Note = {
+    address: BigNumber.from(address1),
+    amount: amountA,
+    salt: saltA,
+    pubKey,
+  };
+  const output1b: Note = {
+    address: BigNumber.from(address1),
+    amount: amountB,
+    salt: saltB,
+    pubKey,
+  };
+  if (getNoteHash(output0a).eq(outputA)) {
+    assert(getNoteHash(output1b).eq(outputB));
+    return [output0a, output1b];
+  } else {
+    assert(getNoteHash(output0b).eq(outputB));
+    assert(getNoteHash(output1a).eq(outputA));
+    return [output0b, output1a];
+  }
 };
